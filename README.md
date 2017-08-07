@@ -1,4 +1,4 @@
-# Library
+# Library.rb
 Collection of Books where you can check-in and checkout as a guest, plus other options as an administrator
 
 If you want to access the library as an administrator, the program will ask for your password. Afterwards, you have four actions 
