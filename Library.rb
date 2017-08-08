@@ -1,9 +1,7 @@
+
 library = Hash.new
 checkout = Hash.new
 checkin = Hash.new
-avengers_age_of_ultron = Hash.new
-catching_fire = Hash.new
-mockingjay_part_1 = Hash.new
 class Book
   attr_accessor :title, :author
   @@count = 0
@@ -26,19 +24,25 @@ def substitute(input)
   input.gsub(":", "").gsub("/", "").gsub("-", "").gsub("'", "").gsub(" ", "")
 end
 
-checkout_date = Time.new(2017, 8, 6, 9, 9, 55)
+def check_form(input)
+  input.gsub(":", "").gsub("/", "").gsub("-", "").gsub("'", "").gsub(" ", "_")
+end
+
+date = Time.new(2016, 11, 30, 5, 30, 24, "-04:00")
 morning = "AM"
 afternoon = "PM"
-catching_fire["checkout_1"] = checkout_date.hour > 12 ? "#{checkout_date.month}/#{checkout_date.day}/#{checkout_date.year} #{checkout_date.hour - 12}:#{checkout_date.min}:#{checkout_date.sec} #{afternoon}"
-: "#{checkout_date.month}/#{checkout_date.day}/#{checkout_date.year} #{checkout_date.hour}:#{checkout_date.min}:#{checkout_date.sec} #{morning}"
 library["avengers_age_of_ultron"] = Book.new("Avengers: Age of Ultron", "Stan Lee")
 library["the_hunger_games_mockingjay_part_1"] = Book.new("The Hunger Games: Mockingjay Part 1", "Suzanne Collins")
 library["the_hunger_games_catching_fire"] = Book.new("The Hunger Games: Catching Fire", "Suzanne Collins")
-checkout["the_hunger_games_catching_fire"] = catching_fire
-checkout["the_hunger_games_mockingjay_part_1"] = mockingjay_part_1
-checkout["avengers_age_of_ultron"] = avengers_age_of_ultron
-catching_fire["checkout #1"] = checkout_date.hour > 12 ? "#{checkout_date.month}/#{checkout_date.day}/#{checkout_date.year} #{checkout_date.hour - 12}:#{checkout_date.min}:#{checkout_date.sec} #{afternoon}"
-: "#{checkout_date.month}/#{checkout_date.day}/#{checkout_date.year} #{checkout_date.hour}:#{checkout_date.min}:#{checkout_date.sec} #{morning}"
+checkout["the_hunger_games_catching_fire"] = Hash.new
+checkout["the_hunger_games_mockingjay_part_1"] = Hash.new
+checkout["avengers_age_of_ultron"] = Hash.new
+checkout["avengers_age_of_ultron"]["checkout_1"] = date.hour > 12 ? "#{date.month}/#{date.day}/#{date.year} #{date.hour - 12}:#{date.min}:#{date.sec} #{afternoon} -0400"
+: "#{date.month}/#{date.day}/#{date.year} #{date.hour}:#{date.min}:#{date.sec} #{morning} -0400"
+checkout["the_hunger_games_mockingjay_part_1"]["checkout_1"] = date.hour > 12 ? "#{date.month}/#{date.day}/#{date.year} #{date.hour - 12}:#{date.min}:#{date.sec} #{afternoon} -0400"
+: "#{date.month}/#{date.day}/#{date.year} #{date.hour}:#{date.min}:#{date.sec} #{morning} -0400"
+checkout["the_hunger_games_catching_fire"]["checkout_1"] = date.hour > 12 ? "#{date.month}/#{date.day}/#{date.year} #{date.hour - 12}:#{date.min}:#{date.sec} #{afternoon} -0400"
+: "#{date.month}/#{date.day}/#{date.year} #{date.hour}:#{date.min}:#{date.sec} #{morning} -0400"
 
 puts "Welcome to Steven Camacho's Book Library programmed by using Ruby. Are you a Guest or an Administrator?"
 customer = gets.chomp.downcase
@@ -69,10 +73,9 @@ when "administrator"
       puts " "
       print "Type in the author as written on the book. "
       author = gets.chomp
-      book_details = Book.new(title, author)
-      checkout_records = Hash.new
-      library[array_title] = book_details
-      checkout[array_title] =
+      library[array_title] = Book.new(title, author)
+      checkout[array_title] = Hash.new
+      checkin[array_title] = Hash.new
       puts " "
       puts "This book has been added! Would you like to see the library's updated inventory? (Y/N)"
       answer = gets.chomp.downcase
@@ -137,7 +140,7 @@ when "guest"
   service.gsub!("-", "") if service.include? "-"
   service.downcase!
   if service == "checkin" || service == "return"
-
+    
   elsif service == "checkout"
     puts " "
     library = library.sort_by {|_key, value| value.title}.to_h
@@ -154,15 +157,30 @@ when "guest"
         after -= 1
         puts "How many days do you want to check it out? (20 days max.)"
         number_of_days = gets.chomp
-        number_of_days.gsub!(" ", "")
+        number_of_days = substitute(number_of_days)
         todays_date = Time.new
-        # library.map do |key, value|
-        #   if checkout.has_key? key
-        #     number =
-        #     checkout[key]["checkout_#{number}"] = todays_date.hour > 12 ? "#{todays_date.month}/#{todays_date.day}/#{todays_date.year} #{todays_date.hour}:#{todays_date.min}:#{todays_date.sec} #{afternoon}"
-        #     : "#{todays_date.month}/#{todays_date.day}/#{todays_date.year} #{todays_date.hour}:#{todays_date.min}:#{todays_date.sec} #{morning}"
-        #   end
-        # end
+        now = 0
+        later = 0
+        number_of_checkouts = ""
+        checkout.map do |key, value|
+          if check_form(selected_books).downcase == key
+            later += 1
+            number_of_checkouts = checkout[key].length
+            hash_inside_hash = checkout[key]
+            if hash_inside_hash.empty?
+              later += 1
+            end
+          end
+        end
+        number_of_checkouts = number_of_checkouts.to_i
+        if later - now == 1
+          number_of_checkouts += 1
+          checkout[check_form(selected_books)]["checkout_#{number_of_checkouts}"] = todays_date.hour > 12 ? "#{todays_date.month}/#{todays_date.day}/#{todays_date.year} #{todays_date.hour - 12}:#{todays_date.min}:#{todays_date.sec} #{afternoon} -0400"
+          : "#{todays_date.month}/#{todays_date.day}/#{todays_date.year} #{todays_date.hour}:#{todays_date.min}:#{todays_date.sec} #{morning} -0400"
+        elsif later - now == 2
+          checkout[check_form(selected_books)]["checkout_1"] = todays_date.hour > 12 ? "#{todays_date.month}/#{todays_date.day}/#{todays_date.year} #{todays_date.hour - 12}:#{todays_date.min}:#{todays_date.sec} #{afternoon} -0400"
+          : "#{todays_date.month}/#{todays_date.day}/#{todays_date.year} #{todays_date.hour}:#{todays_date.min}:#{todays_date.sec} #{morning} -0400"
+        end
         due_date = todays_date + (number_of_days.to_i * (60 * 60 * 24))
         due_weekday = due_date.wday
         due_month = due_date.month
@@ -196,9 +214,13 @@ when "guest"
 
         puts " "
         puts "The book(s) are due on #{due_weekday} #{due_month} #{due_day}, #{due_year}. You can checkout books at my library for free. There's a charge of 25 cents per day late."
+        checkout.map do |title, hash|
+          puts "#{title}: #{hash}"
+        end
         puts "Thank you for visiting SC's Ruby library. Have a good day. :)"
       end
     end
+
     puts "This book isn't in my Library's inventory." if before == after
   else
     puts "Looks like you typed in an option that's not available to you as a guest."
